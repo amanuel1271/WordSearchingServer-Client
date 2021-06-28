@@ -73,27 +73,24 @@ struct thread_info{
 enqueue_info* head = NULL;
 enqueue_info* tail = NULL;
 
-// Helper functions for task queue
 
-void ENQUEUE(int client_fd,int index,pool** my_pool){ //Dont forget to lock before using
+
+void ENQUEUE(int client_fd,int index,pool** my_pool){
 
     enqueue_info* new = calloc(1,sizeof(enqueue_info));
     new->client_fd = client_fd;
     new->index = index;
     new->my_pool = *my_pool;
-    //printf("I am enqueuing %d\n",new->client_fd);
-    //fflush(stdout);
 
     if (tail != NULL )
         tail->next = new;
     else
         head = new;
-
     tail = new;
     
 }
 
- // Helper function for task queue
+
 
 enqueue_info* DEQUEUE(){
 
@@ -121,7 +118,7 @@ pthread_t threadpool[THREAD_POOL_SIZE]; // to create 10 threads
 
 
 
-/* helper functions */
+
 
 void initialize_threadpool(struct thread_info *impt_info){
     for (int j = 0; j < THREAD_POOL_SIZE ; j++){
@@ -135,8 +132,6 @@ int send_all(int socket, void *buffer,size_t len){
     int count;
     for (;len >0;){
         if ((count = send(socket,ptr,len,0)) == -1){
-            //fprintf(stderr,"Send failed with -1 return value\n");
-	        //fflush(stdout);
             return -1;
         }
         ptr = ptr + count;
@@ -152,8 +147,6 @@ int recv_all(int socket, void *buffer,size_t len){
     int count;
     for (;len >0;){
         if ((count = recv(socket,ptr,len,0))  == 0){
-            //fprintf(stderr,"Recv failed with -1 return value\n");
-	        //fflush(stdout);
             return count;
         }
         ptr = ptr + count;
@@ -243,13 +236,10 @@ int create_nonblocking_socket(int port){
 
 void init_pool(int listenfd, pool *p)
 {
-
     int i;
     p->maxi = -1;
     for (i=0; i< FD_SETSIZE; i++)
         p->clientfd[i] = -1;
-
-
     p->maxfd = listenfd;
     FD_ZERO(&p->read_set);
     FD_SET(listenfd, &p->read_set);
@@ -263,25 +253,16 @@ void init_pool(int listenfd, pool *p)
 
 /* task that thread does*/
 void handle_client(enqueue_info* info,Word* word_list,unsigned long size){
-
-    //printf("Handling client\n");
     int i = info->index;
     pool* p = info->my_pool;
     int client_fd = (info->client_fd);
-    //printf("The info of the client is %d %d\n",i,client_fd);
-
     Packet* recv_pkt = malloc(PKT_LEN);
+	
     if (recv_all(client_fd,recv_pkt,PKT_LEN) == 0){
         free(recv_pkt);
         close(client_fd);
- 
-        //printf("Recv 1 failed\n");
-        //fflush(stdout);
         return;
     }
-
-    //if that is not the case
-
     int len = ntohl(recv_pkt->total_length) - 8;
     char* recv_buf = malloc(len * sizeof(char));
 
@@ -289,8 +270,6 @@ void handle_client(enqueue_info* info,Word* word_list,unsigned long size){
         free(recv_buf);
         free(recv_pkt);
         close(client_fd);
-        //printf("Recv 2 failed\n");
-        //fflush(stdout);
         return;
     }
 
@@ -300,15 +279,8 @@ void handle_client(enqueue_info* info,Word* word_list,unsigned long size){
 
     
     Search_array(word_list,size,word,search_buffer);
-    //printf("%s\n",search_buffer);
-    
-
     Packet* send_pkt = malloc(PKT_LEN);
 
-    //printf("What is inside this\n%s %d\n",search_buffer,StrLength(search_buffer));
-    //fflush(stdout);
-
-    // DEPENDING ON WHETHER the search result is found ot not
     if (!StrLength(search_buffer)){
         send_pkt->total_length = htonl(8);
         send_pkt->msg_type = htonl(0x00000020); //error
@@ -319,7 +291,6 @@ void handle_client(enqueue_info* info,Word* word_list,unsigned long size){
     }
 
     if (send_all(client_fd,send_pkt,PKT_LEN) == -1){
-        // if send fails
         fprintf(stderr,"Send is failing  %s\n",word);
     }
        
@@ -334,8 +305,6 @@ void handle_client(enqueue_info* info,Word* word_list,unsigned long size){
     free(search_buffer);
 
     close(client_fd);
-
-    // before accessing the word please try to lock
 }
 
 
@@ -356,7 +325,6 @@ void* threadtask(void *arg){
         pthread_mutex_unlock(&mutex1);
 
         if (info != NULL){
-            // call the function here
             handle_client(info,word,arr_size);
         }
 
@@ -365,13 +333,6 @@ void* threadtask(void *arg){
 }
 
 
-
-
-
-
-
-
-/* This server takes in absolute path to target folder and port number as argument 2 and argument 3 */
 int main(int argc, char *argv[]){
 
    Word* Word_list = calloc(DATA_SIZE,sizeof(struct word));  
@@ -411,12 +372,9 @@ int main(int argc, char *argv[]){
                 ready--;
 
                 if (sock == sockfd){
-                    //I got a new connection request
-                    //printf("Got a new conn request\n");
                     while ( (connfd = accept(sockfd,(struct sockaddr *)&clientaddr,&clientlen)) ){
 
                         if (connfd > 0){
-                            //printf("Please accept %d\n",connfd);
                             FD_SET(connfd,&my_pool.read_set);
                             if (connfd > my_pool.maxfd)
                                 my_pool.maxfd = connfd;
@@ -429,26 +387,14 @@ int main(int argc, char *argv[]){
 
                 }
                 else{
-
-                    //printf("----%d, num_of_ready %d %d\n----",sock,ready,connfd);
-                    //fflush(stdout);
                     pool* p = &my_pool;
-
                     pthread_mutex_lock(&mutex1); // lock to avoid contention
-                    //printf("I have enqueued\n");
                     ENQUEUE(sock,sock,&p);
                     pthread_mutex_unlock(&mutex1); // unlock
                     FD_CLR(sock,&my_pool.read_set);
-
-
                 }
-
             }  
         } 
-
     }
-
     return 0;
-
-
 }

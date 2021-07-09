@@ -54,12 +54,11 @@ int connect_to_server_fd(struct sockaddr_in * server_addrp){
 int send_all(int socket, void *buffer,size_t len){
     Packet* ptr  = (Packet *)buffer;
     int count;
-    for (;len >0;){
-        if ((count = send(socket,ptr,len,0)) == -1){
-            //fprintf(stderr,"Send failed with -1 return value\n");
-	        //fflush(stdout);
+	
+    for ( ;len >0; ){    
+        if ((count = send(socket,ptr,len,0)) == -1)
             return -1;
-        }
+        
         ptr = ptr + count;
         len = len - count;
     }
@@ -71,12 +70,11 @@ int send_all(int socket, void *buffer,size_t len){
 int recv_all(int socket, void *buffer,size_t len){
     Packet* ptr  = (Packet *)buffer;
     int count;
+	
     for (;len >0;){
-        if ((count = recv(socket,ptr,len,0))  == 0){
-            //fprintf(stderr,"Recv failed with -1 return value\n");
-	        //fflush(stdout);
+        if ((count = recv(socket,ptr,len,0))  == 0)
             return count;
-        }
+	    
         ptr = ptr + count;
         len = len - count;
     }
@@ -113,21 +111,19 @@ void interact_with_server(int client_fd,char* word, char* ip_addr){
             fflush(stderr);
             return;
         }
-        //printf("The received packet is %d\n",(ntohl(recv_pkt->msg_type)));
-        //fflush(stdout);
+
         if (ntohl(recv_pkt->msg_type) == 0x00000011){
 
             len = ntohl(recv_pkt->total_length) - 8; // len of the 
             resp_buf = malloc(len * sizeof(char));
             recv_all(client_fd,resp_buf,len);
-            //printf("----%s\n",resp_buf);
-            //fflush(stdout);
+
              free(resp_buf);
         }
         free(m);
         free(send_pkt);
         free(recv_pkt);
-        //free(resp_buf);
+
 
 }
 

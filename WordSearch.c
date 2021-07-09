@@ -12,18 +12,20 @@
 
 
 
-Word *Search_for_word(const char* word, Word* Word_table,unsigned long array_size){
+Word *Search_for_word(const char* word, Word* Word_table,unsigned long array_size)
+{
     Word * begin = Word_table;
     int i = 0;
-    for ( ; i < (array_size - 1);i++){
-      if  (   ( begin->single_word)  == NULL)
+    for (;i < array_size - 1; i++){
+      if  (!begin->single_word)
             return NULL;
 
-        else if ( StrCompare(begin->single_word,word) == 0 ) // word is found, return the pointer
+      else if (StrCompare(begin->single_word,word) == 0) // word is found, return the pointer
             return begin;
+	    
         begin += 1;
     }
-     if ( (begin->single_word) == NULL)
+     if (!begin->single_word)
         return NULL;
     else if (StrCompare(begin->single_word,word) == 0 )
         return begin;
@@ -36,31 +38,29 @@ int check_reallocation(unsigned long arr_size,Word *address){
     int i = 0;
     
     for (; i < (arr_size - 500); i++){
-        if (!((begin)->single_word))
+        if (!(begin->single_word))
             break;
+	    
         begin += 1;
     }
-    if (i == (arr_size - 500))
-        return 1; // we need realloc
-    else
-        return 0;   
+	
+    return i == (arr_size - 500);
 }
 
-void insert_word_info(struct word *word,char *name,unsigned long num){
+void insert_word_info(struct word *word,char *name,unsigned long num)
+{
     struct single_word_info *ptr = word->info,*copy ;
 
-    while(ptr->next != NULL){
+    while(ptr->next){
         ptr = ptr->next;
     }
 
     copy = calloc(1,sizeof(struct single_word_info));
-    
-    (copy)->filename = calloc(1,StrLength(name)+1);
-    StrCopy((copy)->filename,name);
-
-    (copy)->line_num = num;
-    (copy)->next = NULL;
-     ptr->next = copy;
+    copy->filename = calloc(1,StrLength(name)+1);
+    StrCopy(copy->filename,name);
+    copy->line_num = num;
+    copy->next = NULL;
+    ptr->next = copy;
 }
 
 void read_and_extract_words(const char buf[],char** begin,char** moving,unsigned long *line_number,
@@ -82,9 +82,9 @@ void read_and_extract_words(const char buf[],char** begin,char** moving,unsigned
          if (**moving == '\0'){
              return;
          }
+	     
          len_word = *moving - *begin;
          len_word++; // I added 1 because of null character
-         
          dummpy_ptr = malloc(len_word * sizeof(char)); // allocate this much space
          Selectcopy(*begin,dummpy_ptr,len_word-1);
          
@@ -93,7 +93,9 @@ void read_and_extract_words(const char buf[],char** begin,char** moving,unsigned
              *addr = realloc(*addr,( (*arr_size) + (DATA_SIZE/2) ) * sizeof(struct word) );
              *arr_size += (DATA_SIZE/2);
          }
+	     
 	     *address_of_word = Search_for_word(dummpy_ptr,*addr,*arr_size);
+	     
          if ( *address_of_word != NULL){
              insert_word_info(*address_of_word,f_name,*line_number);
          }
@@ -113,6 +115,7 @@ void read_and_extract_words(const char buf[],char** begin,char** moving,unsigned
              ((*address_of_word)->info)->next = NULL; // I know I have calloced but just to make sure
 
          }
+	     
          Memset_to_zero(dummpy_ptr,len_word);
          free(dummpy_ptr);
          *begin = *moving;
@@ -122,7 +125,8 @@ void read_and_extract_words(const char buf[],char** begin,char** moving,unsigned
 
 
 
-void manage_words(FILE** fp_dptr,Word** word_address,char* name_of_file,unsigned long *array_size,unsigned int* ID){
+void manage_words(FILE** fp_dptr,Word** word_address,char* name_of_file,unsigned long *array_size,unsigned int* ID)
+{
     int read_bytes;
     unsigned long line_num = 1;
     char * c,*d; // I want to change this pointer
@@ -134,18 +138,22 @@ void manage_words(FILE** fp_dptr,Word** word_address,char* name_of_file,unsigned
 
     while( fgets(ptr,len,*fp_dptr) != NULL ){ // How are you managing if read finishes between words.
         if ( *(read_buf +(StrLength(read_buf) - 1) ) != '\n'  && (StrLength(read_buf) == DATA_SIZE - 1)){ // doesn't end with newline
+		
             read_len += (DATA_SIZE/2);
-	        distance = ptr - read_buf;
+	    distance = ptr - read_buf;
             read_buf = realloc(read_buf,read_len * sizeof(char));
-	        ptr = read_buf + distance;
+	    ptr = read_buf + distance;
+		
             if (read_buf == NULL){
                 fprintf(stderr,"Realloc failed\n");
                 exit(1);
             }
+		
             len = read_len - StrLength(ptr);
             ptr = ptr + StrLength(ptr);
-            continue;
+            continue;	
         }
+	    
         c = read_buf;
         d = c;
         read_and_extract_words(read_buf,&c,&d,&line_num,array_size, word_address,name_of_file,ID);
@@ -153,6 +161,7 @@ void manage_words(FILE** fp_dptr,Word** word_address,char* name_of_file,unsigned
         ptr = read_buf;
         line_num++;
     }
+	
     free(read_buf);
 }
 
@@ -167,22 +176,26 @@ void Search_array(const Word *Big_array,unsigned long array_size,const char word
     for( ; j < (array_size - 1) ; j++){
         if (!array_ptr->single_word)
             return;
+	    
         else if ( !StrCompare(word,array_ptr->single_word)){
+		
             for(ptr = array_ptr->info;ptr != NULL;ptr = ptr->next){
                 len = sprintf(ptr4,"%s: line #%lu\n",ptr->filename,ptr->line_num);
                 ptr4 = ptr4 + len;
 
             }
             return;
+		
         }
         array_ptr += 1;
     }
+	
     if ( (array_ptr->single_word) && !StrCompare(word,array_ptr->single_word)){
             for(ptr = array_ptr->info;ptr != NULL;ptr = ptr->next){
                 len = sprintf(ptr4,"%s: line #%lu\n",ptr->filename,ptr->line_num);
                 ptr4 = ptr4 + len;
             }
-        }
+    }
 
     return;
 }
@@ -193,10 +206,12 @@ void deallocate_all_mem(Word* Array,unsigned long arr_size){
     int j = 0;
 
     for ( ; j< (arr_size - 1); j++){
+	    
         if (!loop->single_word){
             free(del);
             return;
         }
+	    
         else{
             free(loop->single_word); // if NULL nothing happens so it is fine
             for (curr = loop->info;curr != NULL;curr = next){
@@ -205,8 +220,10 @@ void deallocate_all_mem(Word* Array,unsigned long arr_size){
                 free(curr);
             }
         }
+	    
         loop += 1;
     }
+	
     if (!loop->single_word){
         free(del);
         return;

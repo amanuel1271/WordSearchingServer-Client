@@ -63,12 +63,11 @@ int connect_to_server_fd(char* IP,int port){
 int send_all(int socket, void *buffer,size_t len){
     Packet* ptr  = (Packet *)buffer;
     int count;
+	
     for (;len >0;){
-        if ((count = send(socket,ptr,len,0)) == -1){
-            //fprintf(stderr,"Send failed with -1 return value\n");
-	        //fflush(stdout);
+        if ((count = send(socket,ptr,len,0)) == -1)
             return -1;
-        }
+        
         ptr = ptr + count;
         len = len - count;
     }
@@ -80,12 +79,11 @@ int send_all(int socket, void *buffer,size_t len){
 int recv_all(int socket, void *buffer,size_t len){
     Packet* ptr  = (Packet *)buffer;
     int count;
+	
     for (;len >0;){
-        if ((count = recv(socket,ptr,len,0))  == 0){
-            //fprintf(stderr,"Recv failed with -1 return value\n");
-	        //fflush(stdout);
+        if ((count = recv(socket,ptr,len,0))  == 0)
             return count;
-        }
+        
         ptr = ptr + count;
         len = len - count;
     }
@@ -113,11 +111,6 @@ int main(int argc, char* argv[]){
     char* resp_buf;
     int len;
 
-
-
-
-
-    //while loop
     while (1){
 
         int client_fd = connect_to_server_fd(IP,port);

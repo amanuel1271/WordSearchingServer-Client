@@ -9,12 +9,13 @@ void Memset_to_zero(char * buf, int size_of_buf){
         *(buf + i) = '\0';
     }
     *(buf + i) = '\0';
-
 }
+
+
+
+
 char *StrCopy(char *pcDest, const char* pcSrc)
 {
-
-    
     assert(pcDest != NULL && pcSrc != NULL);
     char *ptr = pcDest;
     const char *src = pcSrc;
@@ -25,6 +26,10 @@ char *StrCopy(char *pcDest, const char* pcSrc)
     *ptr = '\0';
     return pcDest;
 }
+
+
+
+
 
 int StrLength(const char* begin)
 {
@@ -37,9 +42,14 @@ int StrLength(const char* begin)
         final++;
         count++;
     }
-
     return count;
 }
+
+
+
+
+
+
 
 int StrCompare(const char* pcS1, const char* pcS2)
 {
@@ -52,16 +62,14 @@ int StrCompare(const char* pcS1, const char* pcS2)
         if (*lhs != *rhs){
             if (*lhs < *rhs)
                 return -1;
-            else
-                return 1;
+            return 1;
         }
         lhs++;rhs++;
     }
     if (*lhs != *rhs){
         if (*lhs < *rhs)
             return -1;
-        else
-            return 1;
+        return 1;
     }
    
    return 0;

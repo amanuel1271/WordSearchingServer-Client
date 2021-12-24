@@ -3,15 +3,14 @@
 
 
 
-void Memset_to_zero(char * buf, int size_of_buf){
+void Memset_to_zero(char * buf, int size_of_buf)
+{
     int i = 0;
     for (;i < size_of_buf - 1;i++){
         *(buf + i) = '\0';
     }
     *(buf + i) = '\0';
 }
-
-
 
 
 char *StrCopy(char *pcDest, const char* pcSrc)
@@ -28,9 +27,6 @@ char *StrCopy(char *pcDest, const char* pcSrc)
 }
 
 
-
-
-
 int StrLength(const char* begin)
 {
     const char *final;
@@ -44,11 +40,6 @@ int StrLength(const char* begin)
     }
     return count;
 }
-
-
-
-
-
 
 
 int StrCompare(const char* pcS1, const char* pcS2)
@@ -78,8 +69,6 @@ int StrCompare(const char* pcS1, const char* pcS2)
 
 
 
-
-
 char *StrConcat(char *pcDest, const char* pcSrc)
 {
     
@@ -98,9 +87,6 @@ char *StrConcat(char *pcDest, const char* pcSrc)
     
     
 }
-
-
-
 
 
 

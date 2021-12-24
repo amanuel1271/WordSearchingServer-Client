@@ -75,6 +75,11 @@ int StrCompare(const char* pcS1, const char* pcS2)
    return 0;
 }
 
+
+
+
+
+
 char *StrConcat(char *pcDest, const char* pcSrc)
 {
     
@@ -93,6 +98,11 @@ char *StrConcat(char *pcDest, const char* pcSrc)
     
     
 }
+
+
+
+
+
 
 void Selectcopy(const char* str,char *copy_string,unsigned int len){
     const char *ptr = str;
